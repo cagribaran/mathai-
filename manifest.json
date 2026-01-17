@@ -1,0 +1,48 @@
+{
+  "name": "MathAI - Matematik Soruları Çöz",
+  "short_name": "MathAI",
+  "description": "Yapay zeka ile matematik soruları adım adım çöz",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f0c29",
+  "theme_color": "#5842ff",
+  "orientation": "portrait",
+  "categories": ["education", "utilities"],
+  "lang": "tr",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshot.png",
+      "sizes": "540x720",
+      "type": "image/png"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Yeni Soru",
+      "short_name": "Yeni",
+      "description": "Yeni matematik sorusu çöz",
+      "url": "/",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
+}
