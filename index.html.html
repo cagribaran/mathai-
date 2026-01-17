@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0f0c29">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="MathAI">
+  <meta name="description" content="Yapay zeka ile matematik soruları çöz">
+  
+  <title>MathAI - Matematik Soruları Çöz</title>
+  
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="icon" type="image/png" href="icon-192.png">
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      color: #fff;
+      overflow-x: hidden;
+    }
+
+    .geometric-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.1;
+      pointer-events: none;
+      z-index: 0;
+      background-image: 
+        linear-gradient(30deg, transparent 45%, rgba(88, 66, 255, 0.3) 45%, rgba(88, 66, 255, 0.3) 55%, transparent 55%),
+        linear-gradient(150deg, transparent 45%, rgba(255, 107, 237, 0.3) 45%, rgba(255, 107, 237, 0.3) 55%, transparent 55%),
+        linear-gradient(90deg, transparent 45%, rgba(0, 255, 255, 0.3) 45%, rgba(0, 255, 255, 0.3) 55%, transparent 55%);
+      background-size: 100px 100px, 100px 100px, 100px 100px;
+      background-position: 0 0, 50px 50px, 25px 75px;
+      animation: geoMove 20s linear infinite;
+    }
+
+    @keyframes geoMove {
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(100px, 100px); }
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 3rem;
+      animation: fadeInDown 0.8s ease;
+      position: relative;
+    }
+
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .header h1 {
+      font-size: 3rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #5842ff, #ff6bed);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+    }
+
+    .tagline {
+      font-size: 1.1rem;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .settings-btn {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .settings-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: rotate(45deg);
+    }
+
+    .api-warning {
+      background: rgba(255, 200, 0, 0.2);
+      border: 2px solid rgba(255, 200, 0, 0.5);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      text-align: center;
+      animation: fadeInUp 0.8s ease;
+    }
+
+    .api-warning.hidden {
+      display: none;
+    }
+
+    .api-warning h3 {
+      color: #ffd700;
+      margin-bottom: 0.5rem;
+    }
+
+    .api-warning p {
+      margin-bottom: 1rem;
+      opacity: 0.9;
+    }
+
+    .api-warning button {
+      background: linear-gradient(135deg, #5842ff, #7c3aed);
+      color: white;
+      border: none;
+      padding: 0.75rem 2rem;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .api-warning button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(88, 66, 255, 0.4);
+    }
+
+    .input-section {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 24px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      animation: fadeInUp 0.8s ease 0.2s both;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .question-input {
+      width: 100%;
+      min-height: 150px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 2px solid rgba(88, 66, 255, 0.3);
+      border-radius: 16px;
+      padding: 1.5rem;
+      color: #fff;
+      font-family: 'Courier New', monospace;
+      font-size: 1rem;
+      resize: vertical;
+      transition: all 0.3s ease;
+    }
+
+    .question-input:focus {
+      outline: none;
+      border-color: #5842ff;
+      box-shadow: 0 0 0 4px rgba(88, 66, 255, 0.2);
+    }
+
+    .question-input::placeholder {
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .action-bar {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .solve-btn, .history-btn {
+      padding: 1rem 2rem;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .solve-btn {
+      flex: 1;
+      background: linear-gradient(135deg, #5842ff, #7c3aed);
+      color: white;
+    }
+
+    .solve-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(88, 66, 255, 0.4);
+    }
+
+    .solve-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .history-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+    }
+
+    .history-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .examples {
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .examples-title {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.6);
+      margin-bottom: 1rem;
+    }
+
+    .examples-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .example-btn {
+      background: rgba(88, 66, 255, 0.15);
+      border: 1px solid rgba(88, 66, 255, 0.3);
+      color: rgba(255, 255, 255, 0.9);
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: 'Courier New', monospace;
+    }
+
+    .example-btn:hover {
+      background: rgba(88, 66, 255, 0.3);
+      border-color: #5842ff;
+      transform: translateY(-2px);
+    }
+
+    .solution-section {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 24px;
+      padding: 2rem;
+      animation: fadeInUp 0.8s ease 0.4s both;
+      display: none;
+    }
+
+    .solution-section.show {
+      display: block;
+    }
+
+    .solution-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid rgba(88, 66, 255, 0.3);
+    }
+
+    .solution-header h2 {
+      font-size: 1.5rem;
+      color: #5842ff;
+    }
+
+    .copy-btn {
+      background: rgba(88, 66, 255, 0.2);
+      border: 1px solid rgba(88, 66, 255, 0.4);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .copy-btn:hover {
+      background: rgba(88, 66, 255, 0.3);
+    }
+
+    .solution-content {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 16px;
+      padding: 1.5rem;
+      font-family: 'Courier New', monospace;
+      line-height: 1.8;
+      white-space: pre-wrap;
+    }
+
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(10px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 2rem;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-content {
+      background: rgba(15, 12, 41, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 24px;
+      max-width: 500px;
+      width: 100%;
+      padding: 2rem;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .modal-header h2 {
+      font-size: 1.5rem;
+      color: #5842ff;
+    }
+
+    .close-modal {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .close-modal:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.9rem;
+    }
+
+    .form-group input {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.3);
+      border: 2px solid rgba(88, 66, 255, 0.3);
+      border-radius: 12px;
+      padding: 0.75rem;
+      color: white;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #5842ff;
+      box-shadow: 0 0 0 4px rgba(88, 66, 255, 0.2);
+    }
+
+    .form-group .hint {
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.5);
+      margin-top: 0.5rem;
+    }
+
+    .save-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #5842ff, #7c3aed);
+      color: white;
+      border: none;
+      padding: 1rem;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .save-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(88, 66, 255, 0.4);
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 2rem 1rem;
+      }
+
+      .header h1 {
+        font-size: 2rem;
+      }
+
+      .action-bar {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="geometric-bg"></div>
+  
+  <div class="container">
+    <header class="header">
+      <button id="settingsBtn" class="settings-btn" title="Ayarlar">⚙️</button>
+      <h1>🧮 MathAI</h1>
+      <p class="tagline">Yapay zeka ile matematik soruları çöz</p>
+    </header>
+
+    <div id="apiWarning" class="api-warning">
+      <h3>⚠️ API Key Gerekli</h3>
+      <p>Matematik sorularını çözebilmek için Groq API key'inizi girmeniz gerekiyor.</p>
+      <button id="openSettings">API Key Gir</button>
+    </div>
+
+    <div class="input-section">
+      <textarea 
+        id="questionInput" 
+        class="question-input" 
+        placeholder="Matematik sorunuzu buraya yazın..."></textarea>
+      
+      <div class="action-bar">
+        <button id="solveBtn" class="solve-btn">⚡ Çöz</button>
+        <button id="historyBtn" class="history-btn">📚 Geçmiş</button>
+      </div>
+
+      <div class="examples">
+        <p class="examples-title">Örnek sorular:</p>
+        <div class="examples-grid">
+          <button class="example-btn" data-question="3x + 5 = 20 denklemini çöz">3x + 5 = 20 denklemini çöz</button>
+          <button class="example-btn" data-question="∫(2x + 3)dx integralini hesapla">∫(2x + 3)dx integralini hesapla</button>
+          <button class="example-btn" data-question="f(x) = x² - 4x + 3 fonksiyonunun türevini al">f(x) = x² - 4x + 3 fonksiyonunun türevini al</button>
+          <button class="example-btn" data-question="15 ve 25'in EBOB ve EKOK'unu bul">15 ve 25'in EBOB ve EKOK'unu bul</button>
+          <button class="example-btn" data-question="Bir üçgenin kenarları 3, 4, 5 ise alanı nedir?">Bir üçgenin kenarları 3, 4, 5 ise alanı nedir?</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="solutionSection" class="solution-section">
+      <div class="solution-header">
+        <h2>Çözüm</h2>
+        <button id="copyBtn" class="copy-btn">📋 Kopyala</button>
+      </div>
+      <div id="solutionContent" class="solution-content"></div>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div id="settingsModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>⚙️ Ayarlar</h2>
+        <button class="close-modal" id="closeSettings">✕</button>
+      </div>
+      
+      <div class="form-group">
+        <label for="apiKeyInput">Groq API Key:</label>
+        <input 
+          type="password" 
+          id="apiKeyInput" 
+          placeholder="gsk_..." 
+          autocomplete="off"
+        />
+        <p class="hint">API Key'inizi https://console.groq.com adresinden alabilirsiniz</p>
+      </div>
+
+      <button id="saveSettings" class="save-btn">💾 Kaydet</button>
+    </div>
+  </div>
+
+  <script>
+    // Elements
+    const questionInput = document.getElementById('questionInput');
+    const solveBtn = document.getElementById('solveBtn');
+    const historyBtn = document.getElementById('historyBtn');
+    const solutionSection = document.getElementById('solutionSection');
+    const solutionContent = document.getElementById('solutionContent');
+    const copyBtn = document.getElementById('copyBtn');
+    const exampleBtns = document.querySelectorAll('.example-btn');
+    const apiWarning = document.getElementById('apiWarning');
+    const settingsBtn = document.getElementById('settingsBtn');
+    const openSettings = document.getElementById('openSettings');
+    const settingsModal = document.getElementById('settingsModal');
+    const closeSettings = document.getElementById('closeSettings');
+    const apiKeyInput = document.getElementById('apiKeyInput');
+    const saveSettings = document.getElementById('saveSettings');
+
+    let currentSolution = '';
+    let apiKey = localStorage.getItem('groqApiKey') || '';
+
+    // Check API key on load
+    function checkApiKey() {
+      if (apiKey) {
+        apiWarning.classList.add('hidden');
+        apiKeyInput.value = apiKey;
+      } else {
+        apiWarning.classList.remove('hidden');
+      }
+    }
+
+    checkApiKey();
+
+    // Settings modal
+    settingsBtn.addEventListener('click', () => {
+      settingsModal.classList.add('show');
+    });
+
+    openSettings.addEventListener('click', () => {
+      settingsModal.classList.add('show');
+    });
+
+    closeSettings.addEventListener('click', () => {
+      settingsModal.classList.remove('show');
+    });
+
+    saveSettings.addEventListener('click', () => {
+      const key = apiKeyInput.value.trim();
+      if (key) {
+        localStorage.setItem('groqApiKey', key);
+        apiKey = key;
+        checkApiKey();
+        settingsModal.classList.remove('show');
+        alert('✅ API Key kaydedildi!');
+      } else {
+        alert('❌ Lütfen geçerli bir API key girin!');
+      }
+    });
+
+    // Example buttons
+    exampleBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        questionInput.value = btn.dataset.question;
+      });
+    });
+
+    // Solve button
+    solveBtn.addEventListener('click', async () => {
+      if (!apiKey) {
+        alert('❌ Önce API Key girmeniz gerekiyor!');
+        settingsModal.classList.add('show');
+        return;
+      }
+
+      const question = questionInput.value.trim();
+      if (!question) return;
+
+      solveBtn.disabled = true;
+      solveBtn.innerHTML = '<span class="spinner"></span> Çözülüyor...';
+      solutionSection.classList.remove('show');
+
+      try {
+        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+          },
+          body: JSON.stringify({
+            model: 'llama-3.3-70b-versatile',
+            messages: [
+              {
+                role: 'system',
+                content: 'Sen bir matematik öğretmenisin. Matematik sorularını adım adım, detaylı ve açıklayıcı şekilde çöz. Her adımı numaralandır ve açıkla. Son cevabı "CEVAP:" başlığı altında net bir şekilde belirt.'
+              },
+              {
+                role: 'user',
+                content: question
+              }
+            ],
+            temperature: 0.3,
+            max_tokens: 2000
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error('API hatası: ' + response.status);
+        }
+
+        const data = await response.json();
+        currentSolution = data.choices[0].message.content;
+
+        solutionContent.textContent = currentSolution;
+        solutionSection.classList.add('show');
+
+      } catch (error) {
+        console.error('Hata:', error);
+        solutionContent.textContent = '❌ Çözüm sırasında bir hata oluştu: ' + error.message + '\n\nAPI Key\'inizi kontrol edin veya daha sonra tekrar deneyin.';
+        solutionSection.classList.add('show');
+      }
+
+      solveBtn.disabled = false;
+      solveBtn.innerHTML = '⚡ Çöz';
+    });
+
+    // Copy button
+    copyBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(currentSolution);
+      copyBtn.textContent = '✓ Kopyalandı!';
+      setTimeout(() => {
+        copyBtn.textContent = '📋 Kopyala';
+      }, 2000);
+    });
+
+    // Close modal on outside click
+    settingsModal.addEventListener('click', (e) => {
+      if (e.target === settingsModal) {
+        settingsModal.classList.remove('show');
+      }
+    });
+
+    // Enter key
+    questionInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && e.ctrlKey) {
+        solveBtn.click();
+      }
+    });
+  </script>
+</body>
+</html>
