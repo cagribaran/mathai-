@@ -2,7 +2,7 @@
   "name": "MathAI - Matematik Soruları Çöz",
   "short_name": "MathAI",
   "description": "Yapay zeka ile matematik soruları adım adım çöz",
-  "start_url": "/",
+  "start_url": "/mathai/",
   "display": "standalone",
   "background_color": "#0f0c29",
   "theme_color": "#5842ff",
